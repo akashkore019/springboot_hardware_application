@@ -1,8 +1,6 @@
 package com.hardware.store.controller;
 
 import com.hardware.store.dto.ProductDTO;
-import com.hardware.store.model.Product;
-import com.hardware.store.request.CreateProductRequest;
 import com.hardware.store.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -24,31 +23,28 @@ public class ProductController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER')")
-    public List<Product> getProducts() {
+    public List<ProductDTO> getProducts() {
         logger.info("Fetching all products");
         return productService.getAllProducts();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
+        Optional<ProductDTO> productDTO = productService.getProductById(id);
+        return productDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PostMapping
-    public ResponseEntity<Product> addProduct(@Valid @RequestBody CreateProductRequest request) {
-        Product product = new Product(
-                null,
-                request.getName(),
-                request.getCategory(),
-                request.getPrice(),
-                request.getStockQuantity(),
-                request.getDescription(),
-                request.getImageUrl()
-        );
-        Product savedProduct = productService.saveProduct(product);
-        return ResponseEntity.ok(savedProduct);
+    public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO) {
+        logger.info("Adding product: {}", productDTO);
+        return ResponseEntity.ok(productService.saveProduct(productDTO));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public String deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         logger.warn("Product deleted with ID: {}", id);
-        return "Product deleted successfully";
+        return ResponseEntity.ok("Product deleted successfully");
     }
 }

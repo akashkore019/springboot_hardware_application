@@ -1,4 +1,4 @@
-package com.hardware.store.request;
+package com.hardware.store.request.Users;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package com.hardware.store.controller;
 
 import com.hardware.store.model.User;
-import com.hardware.store.request.LoginRequest;
+import com.hardware.store.request.Users.LoginRequest;
 import com.hardware.store.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,8 @@ public class UserController {
 
     private final UserService userService;
 
- @PostMapping("/register")
-public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
+    @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
     String response = userService.registerUser(user);
 
     if (response.startsWith("Error")) {

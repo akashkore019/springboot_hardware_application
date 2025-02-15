@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString
 public class Product {
 
@@ -26,7 +27,7 @@ public class Product {
     private double price;
 
     @Column(nullable = false)
-    private int stockQuantity; // Ensure this field is properly mapped
+    private int stockQuantity;
 
     private String description;
     private String imageUrl;

@@ -19,7 +19,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+                        
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email cannot be blank")
     private String email;

@@ -1,4 +1,4 @@
-package com.hardware.store.request;
+package com.hardware.store.request.products;
 
 import lombok.*;
 
@@ -7,12 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UpdateProductRequest {
-
+public class BaseProductRequest {
     private double price;
     private int stockQuantity;
     private String description;
 }
-
-
- 
