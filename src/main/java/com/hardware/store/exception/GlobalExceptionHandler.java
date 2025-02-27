@@ -1,5 +1,7 @@
 package com.hardware.store.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,13 +15,16 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handle @Valid validation errors (bad input data)
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    // Handle @Valid validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> 
             errors.put(error.getField(), error.getDefaultMessage()));
 
+        logger.warn("Validation error: {}", errors);
         return ResponseEntity.badRequest().body(errors);
     }
 
@@ -32,10 +37,11 @@ public class GlobalExceptionHandler {
         errorResponse.put("error", "Not Found");
         errorResponse.put("message", ex.getMessage());
 
+        logger.warn("Resource Not Found: {}", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    // Handle global exceptions (other unexpected errors)
+    // Handle global exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGlobalException(Exception ex) {
         Map<String, Object> errorResponse = new HashMap<>();
@@ -44,6 +50,21 @@ public class GlobalExceptionHandler {
         errorResponse.put("error", "Internal Server Error");
         errorResponse.put("message", ex.getMessage());
 
+        logger.error("Unexpected error: ", ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    // Handle duplicate entry conflicts
+@ExceptionHandler(ConflictException.class)
+public ResponseEntity<Map<String, Object>> handleConflictException(ConflictException ex) {
+    Map<String, Object> errorResponse = new HashMap<>();
+    errorResponse.put("timestamp", LocalDateTime.now());
+    errorResponse.put("status", HttpStatus.CONFLICT.value());
+    errorResponse.put("error", "Conflict");
+    errorResponse.put("message", ex.getMessage());
+
+    logger.warn("Conflict error: {}", ex.getMessage());
+    return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+}
+
 }
